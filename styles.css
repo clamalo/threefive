@@ -476,7 +476,7 @@ main {
   border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: 500;
-  transition: all var (--transition-speed);
+  transition: all var(--transition-speed);
 }
 
 #create-task-button:hover {
@@ -525,6 +525,7 @@ main {
   border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: 500;
+  font-size: 0.9rem; /* Added to match the nav-button font size */
   transition: all var(--transition-speed);
   box-shadow: var(--shadow-sm);
 }
