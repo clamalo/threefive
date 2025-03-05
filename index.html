@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThreeFive | Simple Daily Tasks</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Firebase SDK scripts -->
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="header-top">
+        <h1>ThreeFive</h1>
+        <div class="user-profile">
+          <button id="sign-in-button" class="auth-button">Sign in</button>
+          <div id="user-menu" class="hidden">
+            <img id="user-avatar" src="" alt="User Avatar" />
+            <span id="user-name"></span>
+            <div class="user-menu-divider"></div>
+            <button id="sign-out-button">
+              <span class="sign-out-text">Sign out<span class="sign-out-icon">→</span></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <main>
+      <section class="combined-section">
+        <div class="date-navigation">
+          <button id="prev-day-button" class="nav-button">
+            <span class="nav-arrow">←</span> Previous Day
+          </button>
+          <div class="current-date-container">
+            <h2 id="current-date">Today</h2>
+            <button id="today-button" class="today-btn">Go to Today</button>
+          </div>
+          <button id="next-day-button" class="nav-button">
+            Next Day <span class="nav-arrow">→</span>
+          </button>
+        </div>
+        
+        <div id="tasks-container" class="sortable-list">
+          <!-- Tasks will be appended here -->
+          <div class="empty-state" id="empty-tasks-message">
+            Add 3-5 important tasks for today
+          </div>
+        </div>
+        <button id="add-task-button" class="add-task-btn">Add Task</button>
+      </section>
+    </main>
+    
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h3 id="modal-title">Add Task</h3>
+        <input type="text" id="task-name-input" placeholder="What's your focus?" maxlength="100" />
+        <div class="modal-actions">
+          <button id="create-task-button">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
