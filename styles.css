@@ -267,7 +267,7 @@ main {
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: all var (--transition-speed);
+  transition: all var(--transition-speed);
   position: relative;
   cursor: grab; /* Add cursor to indicate draggable */
 }
@@ -330,6 +330,7 @@ main {
   color: var(--dark-text);
   padding: 0.25rem 0;
   transition: all var(--transition-speed);
+  cursor: text; /* Explicitly set text cursor for input to override the grab cursor */
 }
 
 .task-text input:focus {
@@ -450,7 +451,7 @@ main {
   width: 100%;
   padding: 0.85rem 1rem;
   margin: 1rem 0;
-  border: 1px solid var (--border-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: 1rem;
   transition: border-color var(--transition-speed);

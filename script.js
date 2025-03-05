@@ -523,7 +523,15 @@ const App = (() => {
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      filter: '.empty-state',
+      handle: '.task', // Allow dragging from the task container itself
+      filter: '.empty-state, .task-text input', // Don't initiate drag from these elements
+      onStart: function(evt) {
+        // Prevent drag if we're clicking on text input
+        const inputElement = evt.item.querySelector('.task-text input');
+        if (document.activeElement === inputElement) {
+          evt.cancel = true;
+        }
+      },
       onSort: () => {
         // Re-order tasks array based on DOM order
         const taskElements = tasksContainer.querySelectorAll('.task');
@@ -544,7 +552,7 @@ const App = (() => {
       }
     });
   };
-  
+
   // Public methods
   return {
     init
