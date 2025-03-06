@@ -15,6 +15,7 @@
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.1);
   --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
   --transition-speed: 0.2s;
+  /* Add back scale-factor variables */
   --scale-factor: 1;
   --content-height: auto;
 }
@@ -42,9 +43,10 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 1.25rem; /* Reduced from 2rem to 1.25rem */
+  /* Add transform properties for scaling */
   transform-origin: top center;
   transform: scale(var(--scale-factor));
-  height: auto;
+  height: var(--content-height);
 }
 
 /* Typography */
@@ -104,6 +106,9 @@ header {
   position: relative;
   cursor: pointer;
   border: 1px solid var(--border-color);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #user-menu:hover {
@@ -188,6 +193,7 @@ header {
   margin-bottom: 1.5rem;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap; /* Allow wrapping on very small screens */
 }
 
 .current-date-container {
@@ -205,7 +211,7 @@ header {
 }
 
 #current-date.is-today {
-  color: var(--secondary-color);
+  color: var (--secondary-color);
 }
 
 .nav-button {
@@ -226,7 +232,7 @@ header {
 
 .nav-button:hover {
   background-color: var(--border-color);
-  color: var(--dark-text);
+  color: var (--dark-text);
 }
 
 .today-btn {
@@ -292,8 +298,8 @@ main {
 .task-checkbox {
   appearance: none;
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 24px; /* Slightly larger for better touch target */
+  height: 24px; /* Slightly larger for better touch target */
   cursor: pointer;
   border-radius: 50%;
   border: 2px solid var(--secondary-color);
@@ -355,8 +361,8 @@ main {
   border: none;
   color: var(--accent-color);
   cursor: pointer;
-  width: 34px;
-  height: 34px;
+  width: 40px; /* Larger touch target */
+  height: 40px; /* Larger touch target */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -407,10 +413,12 @@ main {
   border-radius: var(--border-radius);
   padding: 2rem;
   width: 90%;
-  max-width: 400px;
-  margin: 15vh auto;
+  max-width: 450px; /* Slightly wider to accommodate the longer text area */
+  margin: 10vh auto; /* Changed from 15vh to 10vh to allow more vertical space */
   box-shadow: var(--shadow-md);
   animation: modal-appear 0.3s ease-out;
+  max-height: 80vh; /* Ensure it doesn't go off-screen */
+  overflow-y: auto; /* Allow scrolling if content is too tall */
 }
 
 @keyframes modal-appear {
@@ -485,11 +493,89 @@ main {
   transform: translateY(-2px);
 }
 
+/* Task Detail Modal specific styles */
+.modal-section {
+  margin-bottom: 1rem;
+}
+
+.modal-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--dark-text);
+}
+
+#task-additional-info {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  resize: vertical;
+  min-height: 150px; /* Increased from 100px to 150px */
+  transition: border-color var(--transition-speed);
+  margin-bottom: 1.5rem; /* Increased from 1rem for better spacing */
+}
+
+#task-additional-info:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+#detail-task-name {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: border-color var(--transition-speed);
+}
+
+#detail-task-name:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+/* Long press visual feedback */
+.task.long-press {
+  background-color: var(--light-bg);
+  transform: scale(0.98);
+  transition: all 0.2s ease;
+}
+
+#save-task-details-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color); /* Changed from secondary to primary to match sign-in */
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem; /* Match the font size with auth button */
+  transition: all var(--transition-speed);
+  box-shadow: var(--shadow-sm);
+  min-width: 100px; /* Ensure reasonable minimum width */
+}
+
+#save-task-details-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Ensure modal actions have proper alignment */
+.modal-section:last-child {
+  margin-bottom: 0;
+}
+
 /* Add task button */
 .add-task-btn {
   width: 100%;
   padding: 1rem;
-  background-color: var(--secondary-color);
+  background-color: var (--secondary-color);
   color: white;
   border: none;
   border-radius: var(--border-radius);
@@ -502,6 +588,7 @@ main {
   justify-content: center;
   margin-top: 0;
   box-shadow: var(--shadow-sm);
+  min-height: 50px; /* Ensure minimum touch target height */
 }
 
 .add-task-btn:hover {
@@ -523,7 +610,7 @@ main {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: var (--border-radius);
   cursor: pointer;
   font-weight: 500;
   font-size: 0.9rem; /* Added to match the nav-button font size */
@@ -544,9 +631,18 @@ main {
   }
   
   .date-navigation {
-    flex-direction: column;
-    gap: 0.75rem;
+    /* Change from column to row */
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
     padding-bottom: 1.5rem;
+  }
+  
+  .current-date-container {
+    /* Remove order change */
+    flex: 1;
+    text-align: center;
   }
   
   h1 {
@@ -559,6 +655,20 @@ main {
   
   .task {
     padding: 0.85rem 1rem;
+  }
+  
+  .nav-button {
+    /* Make buttons more compact but still usable */
+    padding: 0.6rem;
+    min-width: 40px;
+    justify-content: center;
+  }
+  
+  /* Make sure add task button is easy to tap */
+  .add-task-btn {
+    padding: 1rem;
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
   }
 }
 
@@ -574,12 +684,90 @@ main {
   }
   
   .nav-button {
-    padding: 0.5rem 0.75rem;
+    /* Make buttons even more compact for very small screens */
+    padding: 0.6rem;
     font-size: 0.8rem;
+    width: auto; /* Override full-width to keep them beside the date */
+  }
+  
+  /* Hide full text on buttons and only show arrows on very small screens */
+  .nav-button span:not(.nav-arrow) {
+    display: none;
+  }
+  
+  .nav-arrow {
+    font-size: 1rem;
   }
   
   .combined-section {
     padding: 1rem;
+  }
+  
+  /* Optimize task list for very small screens */
+  .task {
+    padding: 1rem 0.75rem;
+  }
+  
+  .task-text input {
+    font-size: 1rem;
+    padding: 0.5rem 0; /* More vertical space for touch */
+  }
+  
+  /* Adjust modal for small screens */
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+  
+  #task-name-input {
+    padding: 1rem;
+  }
+  
+  /* Ensure better spacing for authentication elements */
+  .auth-button {
+    padding: 0.85rem 1.5rem;
+    width: 100%;
+  }
+  
+  #user-menu {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.75rem;
+  }
+  
+  .today-btn {
+    width: 100%;
+    padding: 0.6rem;
+  }
+
+  /* Ensure textarea is still usable on small screens */
+  #task-additional-info {
+    min-height: 120px; /* Slightly smaller on mobile but still larger than original */
+  }
+  
+  /* Match the save button styling with auth button on mobile */
+  #save-task-details-button {
+    padding: 0.85rem 1.5rem;
+    width: 100%; /* Full width on mobile, like auth button */
+  }
+}
+
+/* Additional mobile optimization for very small devices */
+@media (max-width: 360px) {
+  .app-container {
+    padding: 0.75rem;
+  }
+  
+  h1 {
+    font-size: 1.4rem;
+  }
+  
+  .task-text input {
+    font-size: 0.95rem;
+  }
+  
+  .combined-section {
+    padding: 0.75rem;
   }
 }
 

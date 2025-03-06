@@ -45,11 +45,12 @@ setupPersistence();
 
 // Task class for task management
 class Task {
-  constructor(id, name, completed = false, order = 0) {
+  constructor(id, name, completed = false, order = 0, additionalInfo = '') {
     this.id = id;
     this.name = name;
     this.completed = completed;
     this.order = order;
+    this.additionalInfo = additionalInfo;
   }
 }
 
@@ -77,6 +78,16 @@ const App = (() => {
   const emptyTasksMessage = document.getElementById('empty-tasks-message');
   const tasksContainer = document.getElementById('tasks-container');
   const appContainer = document.querySelector('.app-container');
+  const taskDetailModal = document.getElementById('task-detail-modal');
+  const detailTaskName = document.getElementById('detail-task-name');
+  const taskAdditionalInfo = document.getElementById('task-additional-info');
+  const saveTaskDetailsButton = document.getElementById('save-task-details-button');
+  const taskDetailModalCloseButton = taskDetailModal.querySelector('.close-button');
+  
+  // Track current task being edited
+  let currentTaskId = null;
+  let longPressTimer = null;
+  const LONG_PRESS_DURATION = 500; // ms
   
   // Helper functions for date handling
   const formatDate = (date) => {
@@ -134,35 +145,91 @@ const App = (() => {
     nextDayButton.addEventListener('click', () => changeDate(1));
     todayButton.addEventListener('click', () => setCurrentDate(new Date()));
     
+    // Set up task detail modal event listeners
+    taskDetailModalCloseButton.addEventListener('click', closeTaskDetailModal);
+    saveTaskDetailsButton.addEventListener('click', saveTaskDetails);
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target === taskDetailModal) {
+        closeTaskDetailModal();
+      }
+    });
+    
     // Initialize with today's date
     updateDateDisplay();
 
     // Add viewport scaling functionality
-    window.addEventListener('resize', handleViewportScaling);
-    window.addEventListener('load', handleViewportScaling);
-    handleViewportScaling(); // Initialize scaling on startup
+    setupViewportScaling();
+    setupTouchInteractions();
   };
   
-  // Viewport scaling functionality
-  const handleViewportScaling = () => {
-    // Get the actual height of the content
-    const appContainer = document.querySelector('.app-container');
+  // Add scaling functionality based on viewport height
+  const setupViewportScaling = () => {
+    // Set initial scale
+    updateViewportScale();
+    
+    // Update scale on window resize
+    window.addEventListener('resize', updateViewportScale);
+    
+    // Update scale when tasks change (which might affect content height)
+    const mutationObserver = new MutationObserver(updateViewportScale);
+    mutationObserver.observe(tasksContainer, { 
+      childList: true, 
+      subtree: true,
+      attributes: true
+    });
+  };
+  
+  // Calculate and apply the viewport scale
+  const updateViewportScale = () => {
+    // Get the content height (the natural height of the app container)
     const contentHeight = appContainer.scrollHeight;
     
-    // Store the content height as a CSS variable for reference
-    document.documentElement.style.setProperty('--content-height', `${contentHeight}px`);
-    
-    // Get the current viewport height
+    // Get the available viewport height
     const viewportHeight = window.innerHeight;
     
-    // If viewport is smaller than content, scale proportionally
-    if (viewportHeight < contentHeight) {
-      const scaleFactor = viewportHeight / contentHeight;
-      document.documentElement.style.setProperty('--scale-factor', scaleFactor);
-    } else {
-      // Reset to normal size
-      document.documentElement.style.setProperty('--scale-factor', 1);
+    // Set a base padding to account for browser UI and provide some margin
+    const basePadding = 20; 
+    
+    // Calculate scale factor
+    let scaleFactor = 1; // Default scale (no scaling)
+    
+    // Only scale down if content is taller than viewport
+    if (contentHeight > viewportHeight - basePadding) {
+      scaleFactor = (viewportHeight - basePadding) / contentHeight;
+      // Remove the minimum scale limit to allow unlimited shrinking
+      // scaleFactor = Math.max(scaleFactor, 0.5); -- removed this line
     }
+    
+    // Apply the scale factor to the root element as a CSS variable
+    document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+    document.documentElement.style.setProperty('--content-height', `${contentHeight}px`);
+    
+    // Adjust body height to prevent scrolling when scaled
+    if (scaleFactor < 1) {
+      document.body.style.height = `${viewportHeight}px`;
+      document.body.style.overflowY = 'hidden';
+    } else {
+      document.body.style.height = '';
+      document.body.style.overflowY = '';
+    }
+  };
+  
+  // Add mobile touch interactions
+  const setupTouchInteractions = () => {
+    // Ensure task inputs are easy to focus on mobile
+    document.addEventListener('touchstart', function(e) {
+      if (e.target.classList.contains('task-text') || 
+          e.target.parentElement.classList.contains('task-text')) {
+        const input = e.target.tagName === 'INPUT' ? e.target : e.target.querySelector('input');
+        if (input) {
+          input.readOnly = false;
+          // Small delay to ensure the tap registers before focusing
+          setTimeout(() => input.focus(), 10);
+        }
+      }
+    }, false);
   };
   
   const updateAuthUI = () => {
@@ -268,7 +335,7 @@ const App = (() => {
         if (snapshot.exists()) {
           const data = snapshot.val();
           tasks = Object.values(data)
-            .map(t => new Task(t.id, t.name, t.completed, t.order))
+            .map(t => new Task(t.id, t.name, t.completed, t.order, t.additionalInfo || ''))
             .sort((a, b) => a.order - b.order);
           
           // If we have less than MIN_TASKS, add blank ones to reach minimum
@@ -300,7 +367,7 @@ const App = (() => {
       
       if (storedTasks) {
         tasks = Object.values(storedTasks)
-          .map(t => new Task(t.id, t.name, t.completed, t.order))
+          .map(t => new Task(t.id, t.name, t.completed, t.order, t.additionalInfo || ''))
           .sort((a, b) => a.order - b.order);
         
         // Ensure minimum tasks
@@ -331,7 +398,7 @@ const App = (() => {
     // Add 3 blank tasks
     for (let i = 0; i < MIN_TASKS; i++) {
       const id = `default-${Date.now()}-${i}`;
-      tasks.push(new Task(id, '', false, i));
+      tasks.push(new Task(id, '', false, i, ''));
     }
     saveTasks();
   };
@@ -373,9 +440,6 @@ const App = (() => {
     tasks.push(newTask);
     saveTasks();
     renderTasks();
-    
-    // Recalculate scaling after adding a new task
-    setTimeout(handleViewportScaling, 0);
   };
   
   const updateTask = (id, updates) => {
@@ -399,9 +463,6 @@ const App = (() => {
       tasks.splice(taskIndex, 1);
       saveTasks();
       renderTasks();
-      
-      // Recalculate scaling after deleting a task
-      setTimeout(handleViewportScaling, 0);
       return true;
     }
     return false;
@@ -432,9 +493,9 @@ const App = (() => {
     
     // Refresh the sortable instance
     setupDragAndDrop();
-    
-    // Recalculate scaling after tasks are rendered
-    setTimeout(handleViewportScaling, 0);
+
+    // After rendering tasks, update the viewport scale
+    setTimeout(updateViewportScale, 0);
   };
   
   const createTaskElement = (task) => {
@@ -485,6 +546,16 @@ const App = (() => {
       }
     });
     
+    // Add better touch support
+    textInput.addEventListener('touchend', (e) => {
+      if (textInput.readOnly) {
+        e.preventDefault();
+        textInput.readOnly = false;
+        textInput.focus();
+        textInput.setSelectionRange(0, textInput.value.length);
+      }
+    });
+    
     textContainer.appendChild(textInput);
     
     // Add delete button only if we have more than MIN_TASKS
@@ -507,17 +578,81 @@ const App = (() => {
       taskEl.appendChild(textContainer);
     }
     
+    // Setup long press detection for this task element
+    setupLongPressDetection(taskEl, task.id);
+    
     return taskEl;
   };
   
-  // Drag and drop functionality
+  // Long press detection for tasks
+  const setupLongPressDetection = (taskEl, taskId) => {
+    let longPressStarted = false;
+    let startX = 0;
+    let startY = 0;
+    const movementThreshold = 10; // px - movement greater than this will cancel long press
+    
+    const getClientX = (e) => e.touches ? e.touches[0].clientX : e.clientX;
+    const getClientY = (e) => e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const startLongPress = (e) => {
+      // Store the initial position
+      startX = getClientX(e);
+      startY = getClientY(e);
+      
+      longPressStarted = true;
+      longPressTimer = setTimeout(() => {
+        if (longPressStarted) {
+          // Visual feedback during long press
+          taskEl.classList.add('long-press');
+          // Open the task detail modal
+          openTaskDetailModal(taskId);
+        }
+      }, LONG_PRESS_DURATION);
+    };
+    
+    const cancelLongPress = () => {
+      longPressStarted = false;
+      taskEl.classList.remove('long-press');
+      clearTimeout(longPressTimer);
+    };
+    
+    const checkForMovement = (e) => {
+      if (!longPressStarted) return;
+      
+      const currentX = getClientX(e);
+      const currentY = getClientY(e);
+      
+      // Calculate distance moved
+      const deltaX = Math.abs(currentX - startX);
+      const deltaY = Math.abs(currentY - startY);
+      
+      // If moved beyond threshold, cancel long press (user is trying to drag)
+      if (deltaX > movementThreshold || deltaY > movementThreshold) {
+        cancelLongPress();
+      }
+    };
+    
+    // Touch events for mobile
+    taskEl.addEventListener('touchstart', startLongPress);
+    taskEl.addEventListener('touchend', cancelLongPress);
+    taskEl.addEventListener('touchcancel', cancelLongPress);
+    taskEl.addEventListener('touchmove', checkForMovement);
+    
+    // Mouse events for desktop
+    taskEl.addEventListener('mousedown', startLongPress);
+    taskEl.addEventListener('mouseup', cancelLongPress);
+    taskEl.addEventListener('mouseleave', cancelLongPress);
+    taskEl.addEventListener('mousemove', checkForMovement);
+  };
+  
+  // Drag and drop functionality with better mobile support
   const setupDragAndDrop = () => {
     // Destroy previous instance if it exists
     if (sortableInstance) {
       sortableInstance.destroy();
     }
     
-    // Create new sortable instance
+    // Create new sortable instance with optimized mobile settings
     sortableInstance = new Sortable(tasksContainer, {
       animation: 150,
       ghostClass: 'sortable-ghost',
@@ -525,12 +660,19 @@ const App = (() => {
       dragClass: 'sortable-drag',
       handle: '.task', // Allow dragging from the task container itself
       filter: '.empty-state, .task-text input', // Don't initiate drag from these elements
+      delay: 150, // Small delay for mobile to better distinguish between tap and drag
+      delayOnTouchOnly: true, // Only apply delay for touch devices
+      touchStartThreshold: 5, // Reduce movement needed to start drag on mobile
       onStart: function(evt) {
         // Prevent drag if we're clicking on text input
         const inputElement = evt.item.querySelector('.task-text input');
         if (document.activeElement === inputElement) {
           evt.cancel = true;
         }
+        
+        // Ensure any pending long press is canceled when drag starts
+        clearTimeout(longPressTimer);
+        evt.item.classList.remove('long-press');
       },
       onSort: () => {
         // Re-order tasks array based on DOM order
@@ -552,7 +694,53 @@ const App = (() => {
       }
     });
   };
-
+  
+  // Open task detail modal
+  const openTaskDetailModal = (taskId) => {
+    currentTaskId = taskId;
+    const task = tasks.find(t => t.id === taskId);
+    
+    if (task) {
+      detailTaskName.value = task.name;
+      taskAdditionalInfo.value = task.additionalInfo || '';
+      taskDetailModal.style.display = 'block';
+      
+      // Focus the task name field with a slight delay to ensure modal is visible
+      setTimeout(() => detailTaskName.focus(), 100);
+    }
+  };
+  
+  // Close task detail modal
+  const closeTaskDetailModal = () => {
+    taskDetailModal.style.display = 'none';
+    currentTaskId = null;
+  };
+  
+  // Save task details from modal
+  const saveTaskDetails = () => {
+    if (currentTaskId) {
+      const taskName = detailTaskName.value.trim();
+      const additionalInfo = taskAdditionalInfo.value.trim();
+      
+      updateTask(currentTaskId, { 
+        name: taskName,
+        additionalInfo: additionalInfo
+      });
+      
+      // Update the task in the DOM
+      const taskEl = document.querySelector(`.task[data-id="${currentTaskId}"]`);
+      if (taskEl) {
+        const input = taskEl.querySelector('.task-text input');
+        if (input) {
+          input.value = taskName;
+        }
+      }
+      
+      closeTaskDetailModal();
+      renderTasks(); // Re-render to ensure UI is updated
+    }
+  };
+  
   // Public methods
   return {
     init

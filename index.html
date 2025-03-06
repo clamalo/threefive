@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ThreeFive | Simple Daily Tasks</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,14 +42,14 @@
       <section class="combined-section">
         <div class="date-navigation">
           <button id="prev-day-button" class="nav-button">
-            <span class="nav-arrow">←</span> Previous Day
+            <span class="nav-arrow">←</span> <span>Previous Day</span>
           </button>
           <div class="current-date-container">
             <h2 id="current-date">Today</h2>
             <button id="today-button" class="today-btn">Go to Today</button>
           </div>
           <button id="next-day-button" class="nav-button">
-            Next Day <span class="nav-arrow">→</span>
+            <span>Next Day</span> <span class="nav-arrow">→</span>
           </button>
         </div>
         
@@ -71,6 +71,25 @@
         <input type="text" id="task-name-input" placeholder="What's your focus?" maxlength="100" />
         <div class="modal-actions">
           <button id="create-task-button">Create</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Task Detail Modal (for long press) -->
+    <div id="task-detail-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h3 id="detail-modal-title">Task Details</h3>
+        <div class="modal-section">
+          <label for="detail-task-name">Task Name</label>
+          <input type="text" id="detail-task-name" placeholder="What's your focus?" maxlength="100" />
+        </div>
+        <div class="modal-section">
+          <label for="task-additional-info">Additional Information</label>
+          <textarea id="task-additional-info" placeholder="Add notes, details, or context about this task..." rows="4"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button id="save-task-details-button">Save</button>
         </div>
       </div>
     </div>
