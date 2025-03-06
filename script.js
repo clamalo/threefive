@@ -558,6 +558,15 @@ const App = (() => {
     
     textContainer.appendChild(textInput);
     
+    // Add info indicator if task has additional information
+    if (task.additionalInfo && task.additionalInfo.trim() !== '') {
+      const infoIndicator = document.createElement('span');
+      infoIndicator.className = 'info-indicator';
+      infoIndicator.setAttribute('aria-label', 'Has additional information');
+      infoIndicator.title = 'Long press to view details';
+      textContainer.appendChild(infoIndicator);
+    }
+    
     // Add delete button only if we have more than MIN_TASKS
     if (tasks.length > MIN_TASKS) {
       const deleteBtn = document.createElement('button');

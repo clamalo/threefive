@@ -325,6 +325,7 @@ main {
 .task-text {
   flex-grow: 1;
   position: relative;
+  padding-right: 20px; /* Add padding to make room for indicator */
 }
 
 .task-text input {
@@ -575,7 +576,7 @@ main {
 .add-task-btn {
   width: 100%;
   padding: 1rem;
-  background-color: var (--secondary-color);
+  background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: var(--border-radius);
@@ -592,7 +593,7 @@ main {
 }
 
 .add-task-btn:hover {
-  background-color: var(--primary-color);
+  background-color: var(--primary-hover);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -610,10 +611,10 @@ main {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: var (--border-radius);
+  border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: 500;
-  font-size: 0.9rem; /* Added to match the nav-button font size */
+  font-size: 0.9rem;
   transition: all var(--transition-speed);
   box-shadow: var(--shadow-sm);
 }
@@ -622,6 +623,24 @@ main {
   background-color: var(--primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+/* Info indicator for tasks with additional information */
+.info-indicator {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background-color: var(--secondary-color);
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.task.completed .info-indicator {
+  opacity: 0.5;
 }
 
 /* Responsive Adjustments */
