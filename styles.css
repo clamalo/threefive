@@ -43,10 +43,22 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 1.25rem; /* Reduced from 2rem to 1.25rem */
-  /* Add transform properties for scaling */
-  transform-origin: top center;
-  transform: scale(var(--scale-factor));
-  height: var(--content-height);
+}
+
+/* apply scale only on non-touch pointers */
+@media (pointer: fine) {
+  .app-container {
+    transform-origin: top center;
+    transform: scale(var(--scale-factor));
+    height: var(--content-height);
+  }
+}
+
+/* disable scaling on touch devices */
+@media (pointer: coarse) {
+  .app-container {
+    transform: none !important;
+  }
 }
 
 /* Typography */

@@ -161,7 +161,6 @@ const App = (() => {
 
     // Add viewport scaling functionality
     setupViewportScaling();
-    setupTouchInteractions();
   };
   
   // Add scaling functionality based on viewport height
@@ -214,22 +213,6 @@ const App = (() => {
       document.body.style.height = '';
       document.body.style.overflowY = '';
     }
-  };
-  
-  // Add mobile touch interactions
-  const setupTouchInteractions = () => {
-    // Ensure task inputs are easy to focus on mobile
-    document.addEventListener('touchstart', function(e) {
-      if (e.target.classList.contains('task-text') || 
-          e.target.parentElement.classList.contains('task-text')) {
-        const input = e.target.tagName === 'INPUT' ? e.target : e.target.querySelector('input');
-        if (input) {
-          input.readOnly = false;
-          // Small delay to ensure the tap registers before focusing
-          setTimeout(() => input.focus(), 10);
-        }
-      }
-    }, false);
   };
   
   const updateAuthUI = () => {
@@ -521,12 +504,10 @@ const App = (() => {
     textInput.type = 'text';
     textInput.value = task.name;
     textInput.placeholder = 'Click to enter task...';
-    textInput.readOnly = true;
     textInput.addEventListener('blur', () => {
       if (textInput.value.trim() !== task.name) {
         updateTask(task.id, { name: textInput.value.trim() });
       }
-      textInput.readOnly = true;
     });
     textInput.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
@@ -539,21 +520,8 @@ const App = (() => {
     
     // Make text clickable for editing
     textInput.addEventListener('click', () => {
-      if (textInput.readOnly) {
-        textInput.readOnly = false;
-        textInput.focus();
-        textInput.setSelectionRange(0, textInput.value.length);
-      }
-    });
-    
-    // Add better touch support
-    textInput.addEventListener('touchend', (e) => {
-      if (textInput.readOnly) {
-        e.preventDefault();
-        textInput.readOnly = false;
-        textInput.focus();
-        textInput.setSelectionRange(0, textInput.value.length);
-      }
+      textInput.focus();
+      textInput.setSelectionRange(0, textInput.value.length);
     });
     
     textContainer.appendChild(textInput);
