@@ -182,6 +182,13 @@ const App = (() => {
   
   // Calculate and apply the viewport scale
   const updateViewportScale = () => {
+    // on touch devices, restore normal scroll and skip scaling
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      document.body.style.height = '';
+      document.body.style.overflowY = '';
+      return;
+    }
+    
     // Get the content height (the natural height of the app container)
     const contentHeight = appContainer.scrollHeight;
     
@@ -197,21 +204,21 @@ const App = (() => {
     // Only scale down if content is taller than viewport
     if (contentHeight > viewportHeight - basePadding) {
       scaleFactor = (viewportHeight - basePadding) / contentHeight;
-      // Remove the minimum scale limit to allow unlimited shrinking
-      // scaleFactor = Math.max(scaleFactor, 0.5); -- removed this line
     }
     
     // Apply the scale factor to the root element as a CSS variable
     document.documentElement.style.setProperty('--scale-factor', scaleFactor);
     document.documentElement.style.setProperty('--content-height', `${contentHeight}px`);
     
-    // Adjust body height to prevent scrolling when scaled
-    if (scaleFactor < 1) {
-      document.body.style.height = `${viewportHeight}px`;
-      document.body.style.overflowY = 'hidden';
-    } else {
-      document.body.style.height = '';
-      document.body.style.overflowY = '';
+    // only lock scrolling on non-touch (fine) pointers
+    if (window.matchMedia('(pointer: fine)').matches) {
+      if (scaleFactor < 1) {
+        document.body.style.height = `${viewportHeight}px`;
+        document.body.style.overflowY = 'hidden';
+      } else {
+        document.body.style.height = '';
+        document.body.style.overflowY = '';
+      }
     }
   };
   
