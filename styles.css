@@ -223,7 +223,7 @@ header {
 }
 
 #current-date.is-today {
-  color: var (--secondary-color);
+  color: var(--secondary-color);
 }
 
 .nav-button {
@@ -244,7 +244,7 @@ header {
 
 .nav-button:hover {
   background-color: var(--border-color);
-  color: var (--dark-text);
+  color: var(--dark-text);
 }
 
 .today-btn {
